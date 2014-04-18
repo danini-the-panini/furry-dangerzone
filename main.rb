@@ -18,6 +18,7 @@ class FurryDangerzone < Gosu::Window
     @cloud1 = Gosu::Image.new self, "cloud1.png"
     @cloud2 = Gosu::Image.new self, "cloud2.png"
     @furry = Gosu::Image.new self, "furry.png"
+    @face = Gosu::Image.new self, "face.png"
     @danger = Gosu::Image.new self, "danger.png"
     @particle = Gosu::Image.new self, "particle.png"
     @jaws = Gosu::Image.new self, "jaws.png"
@@ -147,7 +148,10 @@ class FurryDangerzone < Gosu::Window
     draw_bg @jaws, @dist, self.height-@jaws.height
     draw_bg @jaws, @dist, @jaws.height, 1, -1
 
-    @furry.draw FURRY_OFFSET-@furry.width/2, @pos-@furry.height/2, 0 unless @game_over
+    unless @game_over
+      @furry.draw FURRY_OFFSET-@furry.width/2, @pos-@furry.height/2, 0
+      @face.draw FURRY_OFFSET-2, @pos-2+5*(@velocity/600), 0
+    end 
 
     @dangers.each do |danger|
       @danger.draw danger[:dist]-@danger.width/2, danger[:pos]-@danger.height/2, 0
