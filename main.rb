@@ -10,6 +10,7 @@ class FurryDangerzone < Gosu::Window
   SPEED = 500.0
   NUM_PARTICLES = 100
   PARTICLE_V = 100.0
+  SCORE_PER_SECOND = 10
 
 	def initialize width=800, height=600, fullscreen=false
 		super
@@ -70,6 +71,7 @@ class FurryDangerzone < Gosu::Window
     @last_danger = @last_time
     @game_over = false
     @particles = nil
+    @score = 0
   end
 
   def make_particle x, y, v
@@ -132,6 +134,9 @@ class FurryDangerzone < Gosu::Window
         end
       end
 
+      @score += SCORE_PER_SECOND*@dt
+      @score_text = Gosu::Image.from_text self, "Score #{@score.to_i}", "./8-BIT-WONDER.TTF", 30
+
     end
 
     @dangers.each do |danger|
@@ -185,11 +190,14 @@ class FurryDangerzone < Gosu::Window
 
       @credits.draw 20, self.height-20-@credits.height, 0, 1, 1, 0xFFFFFFFF
     else
+      @score_text.draw 20, 20, 0, 1, 1, 0xFF000000 unless @game_over
     end
 
     if @game_over
       @game_over_text.draw self.width/2-@game_over_text.width/2, self.height/2-@game_over_text.height/2, 0, 1, 1, 0xFFFF00FF
       @game_over_outline.draw self.width/2-@game_over_outline.width/2, self.height/2-@game_over_outline.height/2, 0, 1, 1, 0xFF000000
+    
+      @score_text.draw self.width/2-@score_text.width/2, self.height/2+50, 0, 1, 1, 0xFF000000
     end
 	end
 
