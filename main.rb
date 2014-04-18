@@ -28,10 +28,15 @@ class FurryDangerzone < Gosu::Window
     @subtitle_text = Gosu::Image.from_text self, "Press space to jump", "./8-BIT-WONDER.TTF", 30
     @game_over_text = Gosu::Image.from_text self, "game Over", "./Rase-GPL.ttf", 100
     @game_over_outline = Gosu::Image.from_text self, "game Over", "./Rase-GPL-Outline.ttf", 100
+    @credits = Gosu::Image.from_text self, "Music by bart from http://opengameart.org", Gosu::default_font_name, 30
 
     @jump = Gosu::Sample.new self, "jump.wav"
     @explode = Gosu::Sample.new self, "explode.wav"
     @begin = Gosu::Sample.new self, "begin.wav"
+
+    @song = Gosu::Song.new self, "random_silly_chip_song.ogg"
+    @song.volume = 0.5
+    @song.play true
     reset
 	end
 
@@ -177,6 +182,8 @@ class FurryDangerzone < Gosu::Window
       @main_outline.draw self.width/2-@main_outline.width/2, 50, 0, 1, 1, 0xFF000000
 
       @subtitle_text.draw self.width/2-@subtitle_text.width/2, 150, 0, 1, 1, 0xFF000000
+
+      @credits.draw 20, self.height-20-@credits.height, 0, 1, 1, 0xFFFFFFFF
     else
     end
 
