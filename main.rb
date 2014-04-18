@@ -8,13 +8,14 @@ class FurryDangerzone < Gosu::Window
   DANGER_OFFSET = 50.0
   DANGER_PERIOD = 0.3
   SPEED = 500.0
-  NUM_PARTICLES = 100
-  PARTICLE_V = 100.0
+  NUM_PARTICLES = 200
+  PARTICLE_V = 500.0
   SCORE_PER_SECOND = 10
-  MOTION_BLUR = 20
+  MOTION_BLUR = 10
   MOTION_BLUR_OFFSET = 5.0
   MOTION_BLUR_ALPHA = 64.0
   HISTORY_DISTANCE = 5
+  MOTION_DT = 0.01
 
 	def initialize width=800, height=600, fullscreen=false
 		super
@@ -82,8 +83,10 @@ class FurryDangerzone < Gosu::Window
 
   def make_particle x, y, v
     theta = Gosu.random(0,2*Math::PI)
+    vx = v*Math::cos(theta)
+    vy = v*Math::sin(theta)
     {
-      x: x, y: y, vx: v*Math::cos(theta), vy: v*Math::sin(theta)
+      x: x+vx*MOTION_DT*MOTION_BLUR, y: y+vy*MOTION_DT*MOTION_BLUR, vx: vx, vy: vy
     }
   end
 
@@ -91,7 +94,7 @@ class FurryDangerzone < Gosu::Window
     @game_over = true
     @explode.play
     @particles ||= (0..NUM_PARTICLES).map do
-      make_particle FURRY_OFFSET, @pos, Gosu::random(0.2,1.5)*PARTICLE_V
+      make_particle FURRY_OFFSET, @pos, Gosu::random(0,1.5)*PARTICLE_V
     end
   end
 
@@ -206,8 +209,15 @@ class FurryDangerzone < Gosu::Window
 
     if @particles
       @particles.each do |particle|
+        (1..MOTION_BLUR).each do |i|
+          xoffset = i*MOTION_BLUR_OFFSET*0.4
+          yoffset = i*particle[:vy]*MOTION_DT
+          alpha = ((1.0 - i.to_f/MOTION_BLUR)*MOTION_BLUR_ALPHA).to_i
+          @particle.draw particle[:x]-@particle.width-xoffset, particle[:y]-@particle.height-yoffset, 0, 1, 1, Gosu::Color.new(alpha,255,255,255)
+        end
         @particle.draw particle[:x]-@particle.width, particle[:y]-@particle.height, 0
       end
+
     end
 
     unless @playing
