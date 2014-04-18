@@ -28,6 +28,9 @@ class FurryDangerzone < Gosu::Window
     @subtitle_text = Gosu::Image.from_text self, "Press space to jump", "./8-BIT-WONDER.TTF", 30
     @game_over_text = Gosu::Image.from_text self, "game Over", "./Rase-GPL.ttf", 100
     @game_over_outline = Gosu::Image.from_text self, "game Over", "./Rase-GPL-Outline.ttf", 100
+
+    @jump = Gosu::Sample.new self, "jump.wav"
+    @explode = Gosu::Sample.new self, "explode.wav"
     reset
 	end
 
@@ -36,7 +39,10 @@ class FurryDangerzone < Gosu::Window
     if @game_over
       reset
     elsif @playing
-      @velocity = -BOUNCE_AMOUNT if Gosu::KbSpace
+      if Gosu::KbSpace
+        @velocity = -BOUNCE_AMOUNT 
+        @jump.play
+      end
     else
       @playing = true
       @last_time = Gosu::milliseconds
@@ -68,6 +74,7 @@ class FurryDangerzone < Gosu::Window
 
   def game_over
     @game_over = true
+    @explode.play
     @particles ||= (0..NUM_PARTICLES).map do
       make_particle FURRY_OFFSET, @pos, Gosu::random(0.2,1.5)*PARTICLE_V
     end
