@@ -31,6 +31,7 @@ class FurryDangerzone < Gosu::Window
 
     @jump = Gosu::Sample.new self, "jump.wav"
     @explode = Gosu::Sample.new self, "explode.wav"
+    @begin = Gosu::Sample.new self, "begin.wav"
     reset
 	end
 
@@ -46,6 +47,7 @@ class FurryDangerzone < Gosu::Window
     else
       @playing = true
       @last_time = Gosu::milliseconds
+      @begin.play
     end
 	end
 
