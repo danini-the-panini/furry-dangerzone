@@ -11,9 +11,10 @@ class FurryDangerzone < Gosu::Window
   NUM_PARTICLES = 100
   PARTICLE_V = 100.0
   SCORE_PER_SECOND = 10
-  MOTION_BLUR = 5
-  MOTION_BLUR_OFFSET = 20.0
+  MOTION_BLUR = 20
+  MOTION_BLUR_OFFSET = 5.0
   MOTION_BLUR_ALPHA = 64.0
+  HISTORY_DISTANCE = 5
 
 	def initialize width=800, height=600, fullscreen=false
 		super
@@ -75,6 +76,8 @@ class FurryDangerzone < Gosu::Window
     @game_over = false
     @particles = nil
     @score = 0
+    @history = []
+    @last_history = 0
   end
 
   def make_particle x, y, v
@@ -99,11 +102,14 @@ class FurryDangerzone < Gosu::Window
     }
   end
 
-  def distance_sq x1, y1, x2, y2
-    dx = x1-x2
-    dy = y1-y2
-    dx*dx + dy*dy
+  def length_sq x, y
+    x*x + y*y
   end
+
+  def distance_sq x1, y1, x2, y2
+    length_sq x1-x2, y1-y2
+  end
+
 
   def squared x
     x*x
@@ -142,6 +148,14 @@ class FurryDangerzone < Gosu::Window
 
     end
 
+    unless @game_over
+      if length_sq(@gravity*@dt,@speed*@dt) > squared(HISTORY_DISTANCE)
+        @history << @pos
+        @history.shift if @history.length > MOTION_BLUR
+        @last_history = new_time
+      end
+    end
+
     @dangers.each do |danger|
       danger[:dist] -= @dt*@speed
     end
@@ -171,6 +185,12 @@ class FurryDangerzone < Gosu::Window
     draw_bg @jaws, @dist, @jaws.height, 1, -1
 
     unless @game_over
+      offset = 0
+      @history.each_index do |i|
+        offset = i*MOTION_BLUR_OFFSET
+        alpha = ((1.0 - i.to_f/MOTION_BLUR)*MOTION_BLUR_ALPHA).to_i
+        @furry.draw FURRY_OFFSET-@furry.width/2-offset, @history[@history.length-i-1]-@furry.height/2, 0, 1, 1, Gosu::Color.new(alpha,255,255,255)
+      end
       @furry.draw FURRY_OFFSET-@furry.width/2, @pos-@furry.height/2, 0
       @face.draw FURRY_OFFSET-2, @pos-2+5*(@velocity/600), 0
     end 
