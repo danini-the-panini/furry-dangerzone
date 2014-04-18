@@ -92,9 +92,9 @@ class FurryDangerzone < Gosu::Window
     new_time = Gosu::milliseconds
     @dt = (new_time - @last_time)/1000.0
     @last_time = new_time
+    @dist -= (@dt*@speed).to_i
 
     if @playing && !@game_over
-      @dist -= (@dt*@speed).to_i
       @velocity += @gravity*@dt
       @pos += @velocity*@dt
 
