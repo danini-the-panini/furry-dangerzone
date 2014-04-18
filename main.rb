@@ -20,6 +20,12 @@ class FurryDangerzone < Gosu::Window
     @furry = Gosu::Image.new self, "furry.png"
     @danger = Gosu::Image.new self, "danger.png"
     @particle = Gosu::Image.new self, "particle.png"
+
+    @main_text = Gosu::Image.from_text self, "Furry Dangerzone", "./Rase-GPL-Bold.ttf", 63
+    @main_outline = Gosu::Image.from_text self, "Furry Dangerzone", "./Rase-GPL-Outline.ttf", 64
+    @subtitle_text = Gosu::Image.from_text self, "Press space to jump", "./8-BIT-WONDER.TTF", 30
+    @game_over_text = Gosu::Image.from_text self, "game Over", "./Rase-GPL.ttf", 100
+    @game_over_outline = Gosu::Image.from_text self, "game Over", "./Rase-GPL-Outline.ttf", 100
     reset
 	end
 
@@ -148,6 +154,19 @@ class FurryDangerzone < Gosu::Window
       @particles.each do |particle|
         @particle.draw particle[:x]-@particle.width, particle[:y]-@particle.height, 0
       end
+    end
+
+    unless @playing
+      @main_text.draw self.width/2-@main_text.width/2, 50, 0, 1, 1, 0xFFFF00FF
+      @main_outline.draw self.width/2-@main_outline.width/2, 50, 0, 1, 1, 0xFF000000
+
+      @subtitle_text.draw self.width/2-@subtitle_text.width/2, 150, 0, 1, 1, 0xFF000000
+    else
+    end
+
+    if @game_over
+      @game_over_text.draw self.width/2-@game_over_text.width/2, self.height/2-@game_over_text.height/2, 0, 1, 1, 0xFFFF00FF
+      @game_over_outline.draw self.width/2-@game_over_outline.width/2, self.height/2-@game_over_outline.height/2, 0, 1, 1, 0xFF000000
     end
 	end
 
