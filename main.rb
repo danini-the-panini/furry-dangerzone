@@ -11,6 +11,9 @@ class FurryDangerzone < Gosu::Window
   NUM_PARTICLES = 100
   PARTICLE_V = 100.0
   SCORE_PER_SECOND = 10
+  MOTION_BLUR = 5
+  MOTION_BLUR_OFFSET = 20.0
+  MOTION_BLUR_ALPHA = 64.0
 
 	def initialize width=800, height=600, fullscreen=false
 		super
@@ -174,6 +177,11 @@ class FurryDangerzone < Gosu::Window
 
     @dangers.each do |danger|
       @danger.draw danger[:dist]-@danger.width/2, danger[:pos]-@danger.height/2, 0
+      (1..MOTION_BLUR).each do |i|
+        offset = i*MOTION_BLUR_OFFSET
+        alpha = ((1.0 - i.to_f/MOTION_BLUR)*MOTION_BLUR_ALPHA).to_i
+        @danger.draw danger[:dist]-@danger.width/2+offset, danger[:pos]-@danger.height/2, 0, 1, 1, Gosu::Color.new(alpha,255,255,255)
+      end
     end
 
     if @particles
