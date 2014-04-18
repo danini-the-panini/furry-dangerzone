@@ -20,6 +20,7 @@ class FurryDangerzone < Gosu::Window
     @furry = Gosu::Image.new self, "furry.png"
     @danger = Gosu::Image.new self, "danger.png"
     @particle = Gosu::Image.new self, "particle.png"
+    @jaws = Gosu::Image.new self, "jaws.png"
 
     @main_text = Gosu::Image.from_text self, "Furry Dangerzone", "./Rase-GPL-Bold.ttf", 63
     @main_outline = Gosu::Image.from_text self, "Furry Dangerzone", "./Rase-GPL-Outline.ttf", 64
@@ -132,10 +133,10 @@ class FurryDangerzone < Gosu::Window
     end
 	end
 
-  def draw_bg image, dist, pos
+  def draw_bg image, dist, pos, factor_x = 1, factor_y = 1, color = 0xffffffff, mode = :default
     translate dist % image.width, 0 do
-      image.draw 0, pos, 0
-      image.draw -image.width, pos, 0
+      image.draw 0, pos, 0, factor_x, factor_y, color, mode
+      image.draw -image.width, pos, 0, factor_x, factor_y, color, mode
     end
   end
 
@@ -143,6 +144,8 @@ class FurryDangerzone < Gosu::Window
     draw_bg @bg, @dist/8, 0
     draw_bg @cloud1, @dist/4, -(@pos-self.height/2)/4
     draw_bg @cloud2, @dist/2, -(@pos-self.height/2)/2
+    draw_bg @jaws, @dist, self.height-@jaws.height
+    draw_bg @jaws, @dist, @jaws.height, 1, -1
 
     @furry.draw FURRY_OFFSET-@furry.width/2, @pos-@furry.height/2, 0 unless @game_over
 
