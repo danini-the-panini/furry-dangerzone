@@ -179,8 +179,8 @@ class FurryDangerzone < Gosu::Window
 
 	def draw
     draw_bg @bg, @dist/8, 0
-    draw_bg @cloud1, @dist/4, -(@pos-self.height/2)/4
-    draw_bg @cloud2, @dist/2, -(@pos-self.height/2)/2
+    draw_bg @cloud1, @dist/4, -(@pos-self.height/2)/8
+    draw_bg @cloud2, @dist/2, -(@pos-self.height/2)/4
     draw_bg @jaws, @dist, self.height-@jaws.height
     draw_bg @jaws, @dist, @jaws.height, 1, -1
 
