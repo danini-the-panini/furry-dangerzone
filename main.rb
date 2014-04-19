@@ -122,7 +122,6 @@ class DangerPool
 
   def allocate window
     if @free.empty?
-      puts "Making a new one"
       obj = Danger.new(@danger_image)
     else
       obj = @free.pop
