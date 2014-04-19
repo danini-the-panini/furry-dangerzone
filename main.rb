@@ -44,6 +44,11 @@ class FurryDangerzone < Gosu::Window
     @song.volume = 0.5
     @song.play true
     reset
+
+    ## GC optimising
+    @motion_colors = (0..MOTION_BLUR).map do |i|
+      Gosu::Color.new ((1.0 - i.to_f/MOTION_BLUR)*MOTION_BLUR_ALPHA).to_i, 255, 255, 255
+    end
 	end
 
 	def button_down(id)
@@ -191,8 +196,7 @@ class FurryDangerzone < Gosu::Window
       offset = 0
       @history.each_index do |i|
         offset = i*MOTION_BLUR_OFFSET
-        alpha = ((1.0 - i.to_f/MOTION_BLUR)*MOTION_BLUR_ALPHA).to_i
-        @furry.draw FURRY_OFFSET-@furry.width/2-offset, @history[@history.length-i-1]-@furry.height/2, 0, 1, 1, Gosu::Color.new(alpha,255,255,255)
+        @furry.draw FURRY_OFFSET-@furry.width/2-offset, @history[@history.length-i-1]-@furry.height/2, 0, 1, 1, @motion_colors[i]
       end
       @furry.draw FURRY_OFFSET-@furry.width/2, @pos-@furry.height/2, 0
       @face.draw FURRY_OFFSET-2, @pos-2+5*(@velocity/600), 0
@@ -201,8 +205,7 @@ class FurryDangerzone < Gosu::Window
     @dangers.each do |danger|
       (1..MOTION_BLUR).each do |i|
         offset = i*MOTION_BLUR_OFFSET
-        alpha = ((1.0 - i.to_f/MOTION_BLUR)*MOTION_BLUR_ALPHA).to_i
-        @danger.draw danger[:dist]-@danger.width/2+offset, danger[:pos]-@danger.height/2, 0, 1, 1, Gosu::Color.new(alpha,255,255,255)
+        @danger.draw danger[:dist]-@danger.width/2+offset, danger[:pos]-@danger.height/2, 0, 1, 1, @motion_colors[i]
       end
       @danger.draw danger[:dist]-@danger.width/2, danger[:pos]-@danger.height/2, 0
     end
@@ -210,11 +213,9 @@ class FurryDangerzone < Gosu::Window
     if @particles
       (1..MOTION_BLUR).each do |i|
         xoffset = i*MOTION_BLUR_OFFSET*0.4
-        alpha = ((1.0 - i.to_f/MOTION_BLUR)*MOTION_BLUR_ALPHA).to_i
-        color = Gosu::Color.new(alpha,255,255,255)
         @particles.each do |particle|
           yoffset = i*particle[:vy]*MOTION_DT
-          @particle.draw particle[:x]-@particle.width-xoffset, particle[:y]-@particle.height-yoffset, 0, 1, 1, color
+          @particle.draw particle[:x]-@particle.width-xoffset, particle[:y]-@particle.height-yoffset, 0, 1, 1, @motion_colors[i]
         end
       end
       @particles.each do |particle|
