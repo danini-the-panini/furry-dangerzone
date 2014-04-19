@@ -15,6 +15,7 @@ MOTION_BLUR_OFFSET = 5.0
 MOTION_BLUR_ALPHA = 64.0
 HISTORY_DISTANCE = 5
 MOTION_DT = 0.01
+GAME_OVER_DELAY = 0.3
 
 # helpers
 def length_sq x, y
@@ -181,7 +182,7 @@ class FurryDangerzone < Gosu::Window
 	def button_down(id)
 		close if id == Gosu::KbEscape
     if @game_over
-      reset
+      reset unless @game_over_time < GAME_OVER_DELAY
     elsif @playing
       if Gosu::KbSpace
         @velocity = -BOUNCE_AMOUNT 
@@ -225,6 +226,7 @@ class FurryDangerzone < Gosu::Window
   def game_over
     GC.start
     @game_over = true
+    @game_over_time = 0
     @explode.play
     @particles ||= (0..NUM_PARTICLES).map do
       make_particle FURRY_OFFSET, @pos, Gosu::random(0,1.5)*PARTICLE_V
@@ -268,6 +270,8 @@ class FurryDangerzone < Gosu::Window
         @history.shift if @history.length > MOTION_BLUR
         @last_history = new_time
       end
+    else
+      @game_over_time += @dt unless @game_over_time > GAME_OVER_DELAY
     end
 
     @dangers.each do |danger|
