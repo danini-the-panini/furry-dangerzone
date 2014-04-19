@@ -165,7 +165,7 @@ class FurryDangerzone < Gosu::Window
     @game_over_outline = Gosu::Image.from_text self, "game Over", "./Rase-GPL-Outline.ttf", 100
     @credits = Gosu::Image.from_text self, "Music by bart from http://opengameart.org", Gosu::default_font_name, 30
     @score_text = Score.new self, "./8-BIT-WONDER.TTF", 30
-    @prompt = Gosu::Image.from_text self, "Enter your name", "./8-BIT-WONDER.TTF", 30
+    @prompt = Gosu::Image.from_text self, "You got a high score", "./8-BIT-WONDER.TTF", 30
 
     @jump = Gosu::Sample.new self, "jump.wav"
     @explode = Gosu::Sample.new self, "explode.wav"
@@ -212,15 +212,15 @@ class FurryDangerzone < Gosu::Window
 	def button_down(id)
 		close if id == Gosu::KbEscape
     if @game_over
-      if id == Gosu::KbReturn || id == Gosu::KbEnter
-        unless @game_over_time < GAME_OVER_DELAY
+      unless @game_over_time < GAME_OVER_DELAY
+        if self.text_input && id == Gosu::KbReturn || id == Gosu::KbEnter
           @scores << [@score.to_i, self.text_input.text]
           @scores = @scores.sort{ |x,y| y <=> x }.slice(0...7)
           update_score_strings
           save_scores
           self.text_input = nil
-          reset
         end
+        reset
       end
     elsif @playing
       if Gosu::KbSpace
@@ -311,7 +311,7 @@ class FurryDangerzone < Gosu::Window
       end
     else
       @game_over_time += @dt unless @game_over_time > GAME_OVER_DELAY
-      if @game_over_time > GAME_OVER_DELAY && !self.text_input
+      if @game_over_time > GAME_OVER_DELAY && @score > @scores[-1][0] && !self.text_input
         self.text_input = Gosu::TextInput.new
       end
     end
