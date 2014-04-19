@@ -165,6 +165,7 @@ class FurryDangerzone < Gosu::Window
     @game_over_outline = Gosu::Image.from_text self, "game Over", "./Rase-GPL-Outline.ttf", 100
     @credits = Gosu::Image.from_text self, "Music by bart from http://opengameart.org", Gosu::default_font_name, 30
     @score_text = Score.new self, "./8-BIT-WONDER.TTF", 30
+    @prompt = Gosu::Image.from_text self, "Enter your name", "./8-BIT-WONDER.TTF", 30
 
     @jump = Gosu::Sample.new self, "jump.wav"
     @explode = Gosu::Sample.new self, "explode.wav"
@@ -184,7 +185,10 @@ class FurryDangerzone < Gosu::Window
 	def button_down(id)
 		close if id == Gosu::KbEscape
     if @game_over
-      reset unless @game_over_time < GAME_OVER_DELAY
+      if id == Gosu::KbReturn || id == Gosu::KbEnter
+        self.text_input = nil
+        reset unless @game_over_time < GAME_OVER_DELAY
+      end
     elsif @playing
       if Gosu::KbSpace
         @velocity = -BOUNCE_AMOUNT 
@@ -233,6 +237,7 @@ class FurryDangerzone < Gosu::Window
     @particles ||= (0..NUM_PARTICLES).map do
       make_particle FURRY_OFFSET, @pos, Gosu::random(0,1.5)*PARTICLE_V
     end
+    self.text_input = Gosu::TextInput.new
   end
 
 	def update
@@ -352,6 +357,17 @@ class FurryDangerzone < Gosu::Window
       @game_over_outline.draw self.width/2-@game_over_outline.width/2, self.height/2-@game_over_outline.height/2, 0, 1, 1, 0xFF000000
     
       @score_text.draw self.width/2-@score_text.width(@score.to_i)/2, self.height/2+50, @score.to_i
+
+      @prompt.draw self.width/2-@prompt.width/2, self.height/2+100, 0, 1, 1, 0xFF000000
+
+      caret = self.text_input.caret_pos
+      before_text = caret.zero? ? "" : self.text_input.text[0..caret-1]
+      after_text = self.text_input.text[caret..-1]
+      name_before = Gosu::Image.from_text(self, before_text+"|", "./8-BIT-WONDER.TTF", 30)
+      name_after = Gosu::Image.from_text(self, after_text, "./8-BIT-WONDER.TTF", 30)
+      input_width = name_before.width + name_after.width
+      name_before.draw self.width/2-input_width/2, self.height/2+130, 0, 1, 1, 0xFF000000
+      name_after.draw self.width/2-input_width/2+name_before.width, self.height/2+130, 0, 1, 1, 0xFF000000
     end
 	end
 
