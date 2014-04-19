@@ -199,12 +199,12 @@ class FurryDangerzone < Gosu::Window
     end 
 
     @dangers.each do |danger|
-      @danger.draw danger[:dist]-@danger.width/2, danger[:pos]-@danger.height/2, 0
       (1..MOTION_BLUR).each do |i|
         offset = i*MOTION_BLUR_OFFSET
         alpha = ((1.0 - i.to_f/MOTION_BLUR)*MOTION_BLUR_ALPHA).to_i
         @danger.draw danger[:dist]-@danger.width/2+offset, danger[:pos]-@danger.height/2, 0, 1, 1, Gosu::Color.new(alpha,255,255,255)
       end
+      @danger.draw danger[:dist]-@danger.width/2, danger[:pos]-@danger.height/2, 0
     end
 
     if @particles
