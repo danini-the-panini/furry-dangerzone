@@ -154,6 +154,8 @@ class FurryDangerzone < Gosu::Window
     @face = Gosu::Image.new self, "face.png"
     @particle = Gosu::Image.new self, "particle.png"
     @jaws = Gosu::Image.new self, "jaws.png"
+    @jaws2 = Gosu::Image.new self, "jaws2.png"
+    @jaws3 = Gosu::Image.new self, "jaws3.png"
     @dangers = DangerPool.new self, 10
 
     @main_text = Gosu::Image.from_text self, "Furry Dangerzone", "./Rase-GPL-Bold.ttf", 64
@@ -299,7 +301,11 @@ class FurryDangerzone < Gosu::Window
     draw_bg @bg, @dist/8, 0
     draw_bg @cloud1, @dist/4, -(@pos-self.height/2)/8
     draw_bg @cloud2, @dist/2, -(@pos-self.height/2)/4
+    draw_bg @jaws3, @dist/4, self.height-@jaws.height-(@pos)/16, 1, 1, 0xFF9bc2fd
+    draw_bg @jaws2, @dist/2, self.height-@jaws.height-(@pos)/32, 1, 1, 0xFFc2dafd
     draw_bg @jaws, @dist, self.height-@jaws.height
+    draw_bg @jaws3, @dist/4, @jaws.height-(@pos-self.height)/16, 1, -1, 0xFF88edff
+    draw_bg @jaws2, @dist/2, @jaws.height-(@pos-self.height)/32, 1, -1, 0xFFcdf7ff
     draw_bg @jaws, @dist, @jaws.height, 1, -1
 
     unless @game_over
