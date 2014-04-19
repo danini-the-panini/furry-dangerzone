@@ -29,7 +29,7 @@ class FurryDangerzone < Gosu::Window
     @particle = Gosu::Image.new self, "particle.png"
     @jaws = Gosu::Image.new self, "jaws.png"
 
-    @main_text = Gosu::Image.from_text self, "Furry Dangerzone", "./Rase-GPL-Bold.ttf", 63
+    @main_text = Gosu::Image.from_text self, "Furry Dangerzone", "./Rase-GPL-Bold.ttf", 64
     @main_outline = Gosu::Image.from_text self, "Furry Dangerzone", "./Rase-GPL-Outline.ttf", 64
     @subtitle_text = Gosu::Image.from_text self, "Press space to jump", "./8-BIT-WONDER.TTF", 30
     @game_over_text = Gosu::Image.from_text self, "game Over", "./Rase-GPL.ttf", 100
