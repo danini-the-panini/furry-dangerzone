@@ -67,10 +67,14 @@ class Score
 end
 
 class Danger
-  def initialize window, image
+  def initialize image
     @image = image
+  end
+
+  def reset window
     @pos = Gosu::random(DANGER_OFFSET, window.height-DANGER_OFFSET*2)
     @dist = window.width+DANGER_OFFSET
+    self
   end
 
   def update dt, speed
@@ -94,6 +98,50 @@ class Danger
   end
 end
 
+class DangerPool
+  def initialize window, size
+    @danger_image = Gosu::Image.new window, "danger.png"
+    @free = size.times.map { |i| Danger.new @danger_image }
+    @used = []
+  end
+
+  def each &block
+    @used.each &block
+  end
+
+  def delete_if &block
+    @used.delete_if do |danger|
+      if block.(danger)
+        @free << danger
+        true
+      else
+        false
+      end
+    end
+  end
+
+  def allocate window
+    if @free.empty?
+      puts "Making a new one"
+      obj = Danger.new(@danger_image)
+    else
+      obj = @free.pop
+    end
+    @used << obj.reset(window)
+    obj
+  end
+
+  def deallocate danger
+    @used.delete danger
+    @free << danger
+  end
+
+  def reset
+    @free.concat @used
+    @used = []
+  end
+end
+
 class FurryDangerzone < Gosu::Window
 
 	def initialize width=800, height=600, fullscreen=false
@@ -104,9 +152,9 @@ class FurryDangerzone < Gosu::Window
     @cloud2 = Gosu::Image.new self, "cloud2.png"
     @furry = Gosu::Image.new self, "furry.png"
     @face = Gosu::Image.new self, "face.png"
-    @danger = Gosu::Image.new self, "danger.png"
     @particle = Gosu::Image.new self, "particle.png"
     @jaws = Gosu::Image.new self, "jaws.png"
+    @dangers = DangerPool.new self, 10
 
     @main_text = Gosu::Image.from_text self, "Furry Dangerzone", "./Rase-GPL-Bold.ttf", 64
     @main_outline = Gosu::Image.from_text self, "Furry Dangerzone", "./Rase-GPL-Outline.ttf", 64
@@ -156,7 +204,7 @@ class FurryDangerzone < Gosu::Window
     @dt = 0
     @last_time = 0
     @playing = false
-    @dangers = []
+    @dangers.reset
     @danger_period = DANGER_PERIOD
     @last_danger = @last_time
     @game_over = false
@@ -176,6 +224,7 @@ class FurryDangerzone < Gosu::Window
   end
 
   def game_over
+    GC.start
     @game_over = true
     @explode.play
     @particles ||= (0..NUM_PARTICLES).map do
@@ -195,7 +244,7 @@ class FurryDangerzone < Gosu::Window
 
       if (new_time - @last_danger)/1000.0 > @danger_period
         Gosu.random(1,3).to_int.times do
-          @dangers << Danger.new(self, @danger)
+          @dangers.allocate self
         end
         @last_danger = new_time
       end
