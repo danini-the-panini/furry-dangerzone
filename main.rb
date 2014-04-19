@@ -387,8 +387,8 @@ class FurryDangerzone < Gosu::Window
 
       dy = 0
       @score_strings.each do |score,name|
-        name.draw FURRY_OFFSET, 200+dy, 0, 1, 1, 0xFF000000
-        score.draw self.width-FURRY_OFFSET-score.width, 200+dy, 0, 1, 1, 0xFF000000
+        name.draw FURRY_OFFSET*1.5, 200+dy, 0, 1, 1, 0xFF000000
+        score.draw self.width-FURRY_OFFSET*1.5-score.width, 200+dy, 0, 1, 1, 0xFF000000
         dy += 50
       end
     else
