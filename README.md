@@ -3,6 +3,13 @@ furry-dangerzone
 
 Random Game made with Gosu. It is a bit like (I'm so sorry) Flappy Bird. I just made it to get a feel for the Gosu game library.
 
+Screenshots!
+------------
+
+![Screenshot of Title Screen](https://i.imgur.com/cnknOyb.png)
+![Screenshot of Game Play](https://i.imgur.com/sDltn05.png)
+![Screenshot of Game Over](https://i.imgur.com/S5qFrg8.png)
+
 Credits
 -------
 
