@@ -414,7 +414,9 @@ class FurryDangerzone < Gosu::Window
           name_before.draw self.width/2-input_width/2, self.height/2+130, 0, 1, 1, 0xFF000000
           name_after.draw self.width/2-input_width/2+name_before.width, self.height/2+130, 0, 1, 1, 0xFF000000
         else
-          @prompt_not_good_enough.draw self.width/2-@prompt_not_good_enough.width/2, self.height/2+100, 0, 1, 1, 0xFF000000
+          if Time::now.to_f % 1.4 < 0.7
+            @prompt_not_good_enough.draw self.width/2-@prompt_not_good_enough.width/2, self.height/2+100, 0, 1, 1, 0xFF000000
+          end
         end
       end
     end
