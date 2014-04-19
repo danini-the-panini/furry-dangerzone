@@ -131,10 +131,10 @@ class DangerPool
     obj
   end
 
-  def deallocate danger
-    @used.delete danger
-    @free << danger
-  end
+  # def deallocate danger
+  #   @used.delete danger
+  #   @free << danger
+  # end
 
   def reset
     @free.concat @used
@@ -174,6 +174,10 @@ class FurryDangerzone < Gosu::Window
     @song = Gosu::Song.new self, "random_silly_chip_song.ogg"
     @song.volume = 0.5
     @song.play true
+
+    load_scores
+    update_score_strings
+
     reset
 
     ## GC optimising
@@ -182,12 +186,41 @@ class FurryDangerzone < Gosu::Window
     end
 	end
 
+  def load_scores
+    if File.exists?("scores.dat")
+      File.open("scores.dat") do |f|
+        @scores = Marshal::load(f.read)
+      end
+    else
+      @scores = []
+    end
+  end
+
+  def save_scores
+    File.open("scores.dat", File::CREAT|File::TRUNC|File::RDWR) do |f|
+      f.write Marshal::dump(@scores)
+    end
+  end
+
+  def update_score_strings
+    @score_strings = @scores.map do |score,name|
+      [Gosu::Image.from_text(self, score.to_s, "./8-BIT-WONDER.TTF", 30),
+        Gosu::Image.from_text(self, name, "./8-BIT-WONDER.TTF", 30)]
+    end
+  end
+
 	def button_down(id)
 		close if id == Gosu::KbEscape
     if @game_over
       if id == Gosu::KbReturn || id == Gosu::KbEnter
-        self.text_input = nil
-        reset unless @game_over_time < GAME_OVER_DELAY
+        unless @game_over_time < GAME_OVER_DELAY
+          @scores << [@score.to_i, self.text_input.text]
+          @scores = @scores.sort{ |x,y| y <=> x }.slice(0...7)
+          update_score_strings
+          save_scores
+          self.text_input = nil
+          reset
+        end
       end
     elsif @playing
       if Gosu::KbSpace
@@ -237,7 +270,6 @@ class FurryDangerzone < Gosu::Window
     @particles ||= (0..NUM_PARTICLES).map do
       make_particle FURRY_OFFSET, @pos, Gosu::random(0,1.5)*PARTICLE_V
     end
-    self.text_input = Gosu::TextInput.new
   end
 
 	def update
@@ -279,6 +311,9 @@ class FurryDangerzone < Gosu::Window
       end
     else
       @game_over_time += @dt unless @game_over_time > GAME_OVER_DELAY
+      if @game_over_time > GAME_OVER_DELAY && !self.text_input
+        self.text_input = Gosu::TextInput.new
+      end
     end
 
     @dangers.each do |danger|
@@ -348,6 +383,13 @@ class FurryDangerzone < Gosu::Window
       @subtitle_text.draw self.width/2-@subtitle_text.width/2, 150, 0, 1, 1, 0xFF000000
 
       @credits.draw 20, self.height-20-@credits.height, 0, 1, 1, 0xFFFFFFFF
+
+      dy = 0
+      @score_strings.each do |score,name|
+        name.draw FURRY_OFFSET, 200+dy, 0, 1, 1, 0xFF000000
+        score.draw self.width-FURRY_OFFSET-score.width, 200+dy, 0, 1, 1, 0xFF000000
+        dy += 50
+      end
     else
       @score_text.draw 20, 20, @score.to_i unless @game_over
     end
@@ -358,16 +400,18 @@ class FurryDangerzone < Gosu::Window
     
       @score_text.draw self.width/2-@score_text.width(@score.to_i)/2, self.height/2+50, @score.to_i
 
-      @prompt.draw self.width/2-@prompt.width/2, self.height/2+100, 0, 1, 1, 0xFF000000
+      if self.text_input
+        @prompt.draw self.width/2-@prompt.width/2, self.height/2+100, 0, 1, 1, 0xFF000000
 
-      caret = self.text_input.caret_pos
-      before_text = caret.zero? ? "" : self.text_input.text[0..caret-1]
-      after_text = self.text_input.text[caret..-1]
-      name_before = Gosu::Image.from_text(self, before_text+"|", "./8-BIT-WONDER.TTF", 30)
-      name_after = Gosu::Image.from_text(self, after_text, "./8-BIT-WONDER.TTF", 30)
-      input_width = name_before.width + name_after.width
-      name_before.draw self.width/2-input_width/2, self.height/2+130, 0, 1, 1, 0xFF000000
-      name_after.draw self.width/2-input_width/2+name_before.width, self.height/2+130, 0, 1, 1, 0xFF000000
+        caret = self.text_input.caret_pos
+        before_text = caret.zero? ? "" : self.text_input.text[0..caret-1]
+        after_text = self.text_input.text[caret..-1]
+        name_before = Gosu::Image.from_text(self, "*"+before_text+"|", "./8-BIT-WONDER.TTF", 30)
+        name_after = Gosu::Image.from_text(self, after_text+"*", "./8-BIT-WONDER.TTF", 30)
+        input_width = name_before.width + name_after.width
+        name_before.draw self.width/2-input_width/2, self.height/2+130, 0, 1, 1, 0xFF000000
+        name_after.draw self.width/2-input_width/2+name_before.width, self.height/2+130, 0, 1, 1, 0xFF000000
+      end
     end
 	end
 
