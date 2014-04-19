@@ -1,5 +1,42 @@
 require 'gosu'
 
+class Score
+  def initialize window, font, font_height
+    @text = Gosu::Image.from_text window, "Score ", font, font_height
+    @numbers = 10.times.map do |i|
+      Gosu::Image.from_text window, i.to_s, font, font_height
+    end
+  end
+
+  def draw x, y, score
+    @text.draw x, y, 0, 1, 1, 0xFF000000
+    dx = @text.width
+    num_list(score).each do |i|
+      num = @numbers[i]
+      num.draw x+dx, y, 0, 1, 1, 0xFF000000
+      dx += num.width
+    end
+  end
+
+  def width score
+    w = @text.width
+    num_list(score).each do |i|
+      w += @numbers[i].width
+    end
+    w
+  end
+
+  private
+  def num_list score
+    nums = []
+    while score > 0
+      nums << score%10
+      score /= 10
+    end
+    nums.reverse
+  end
+end
+
 class FurryDangerzone < Gosu::Window
 
   BOUNCE_AMOUNT = 500.0
@@ -35,6 +72,7 @@ class FurryDangerzone < Gosu::Window
     @game_over_text = Gosu::Image.from_text self, "game Over", "./Rase-GPL.ttf", 100
     @game_over_outline = Gosu::Image.from_text self, "game Over", "./Rase-GPL-Outline.ttf", 100
     @credits = Gosu::Image.from_text self, "Music by bart from http://opengameart.org", Gosu::default_font_name, 30
+    @score_text = Score.new self, "./8-BIT-WONDER.TTF", 30
 
     @jump = Gosu::Sample.new self, "jump.wav"
     @explode = Gosu::Sample.new self, "explode.wav"
@@ -152,7 +190,6 @@ class FurryDangerzone < Gosu::Window
       end
 
       @score += SCORE_PER_SECOND*@dt
-      @score_text = Gosu::Image.from_text self, "Score #{@score.to_i}", "./8-BIT-WONDER.TTF", 30
 
     end
 
@@ -232,14 +269,14 @@ class FurryDangerzone < Gosu::Window
 
       @credits.draw 20, self.height-20-@credits.height, 0, 1, 1, 0xFFFFFFFF
     else
-      @score_text.draw 20, 20, 0, 1, 1, 0xFF000000 unless @game_over
+      @score_text.draw 20, 20, @score.to_i unless @game_over
     end
 
     if @game_over
       @game_over_text.draw self.width/2-@game_over_text.width/2, self.height/2-@game_over_text.height/2, 0, 1, 1, 0xFFFF00FF
       @game_over_outline.draw self.width/2-@game_over_outline.width/2, self.height/2-@game_over_outline.height/2, 0, 1, 1, 0xFF000000
     
-      @score_text.draw self.width/2-@score_text.width/2, self.height/2+50, 0, 1, 1, 0xFF000000
+      @score_text.draw self.width/2-@score_text.width(@score.to_i)/2, self.height/2+50, @score.to_i
     end
 	end
 
