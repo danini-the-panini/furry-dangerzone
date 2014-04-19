@@ -1,5 +1,34 @@
 require 'gosu'
 
+# constants
+BOUNCE_AMOUNT = 500.0
+GRAVITY = 1500.0
+FURRY_OFFSET = 100.0
+DANGER_OFFSET = 50.0
+DANGER_PERIOD = 0.3
+SPEED = 500.0
+NUM_PARTICLES = 200
+PARTICLE_V = 500.0
+SCORE_PER_SECOND = 10
+MOTION_BLUR = 10
+MOTION_BLUR_OFFSET = 5.0
+MOTION_BLUR_ALPHA = 64.0
+HISTORY_DISTANCE = 5
+MOTION_DT = 0.01
+
+# helpers
+def length_sq x, y
+  x*x + y*y
+end
+
+def distance_sq x1, y1, x2, y2
+  length_sq x1-x2, y1-y2
+end
+
+def squared x
+  x*x
+end
+
 class Score
   def initialize window, font, font_height
     @text = Gosu::Image.from_text window, "Score ", font, font_height
@@ -37,22 +66,35 @@ class Score
   end
 end
 
-class FurryDangerzone < Gosu::Window
+class Danger
+  def initialize window, image
+    @image = image
+    @pos = Gosu::random(DANGER_OFFSET, window.height-DANGER_OFFSET*2)
+    @dist = window.width+DANGER_OFFSET
+  end
 
-  BOUNCE_AMOUNT = 500.0
-  GRAVITY = 1500.0
-  FURRY_OFFSET = 100.0
-  DANGER_OFFSET = 50.0
-  DANGER_PERIOD = 0.3
-  SPEED = 500.0
-  NUM_PARTICLES = 200
-  PARTICLE_V = 500.0
-  SCORE_PER_SECOND = 10
-  MOTION_BLUR = 10
-  MOTION_BLUR_OFFSET = 5.0
-  MOTION_BLUR_ALPHA = 64.0
-  HISTORY_DISTANCE = 5
-  MOTION_DT = 0.01
+  def update dt, speed
+    @dist -= dt*speed
+  end
+
+  def draw motion_colors
+    (1..MOTION_BLUR).each do |i|
+      offset = i*MOTION_BLUR_OFFSET
+      @image.draw @dist-@image.width/2+offset, @pos-@image.height/2, 0, 1, 1, motion_colors[i]
+    end
+    @image.draw @dist-@image.width/2, @pos-@image.height/2, 0
+  end
+
+  def gone_off?
+    @dist < -DANGER_OFFSET
+  end
+
+  def distance_sq_to x, y
+    distance_sq(@dist, @pos, x, y)
+  end
+end
+
+class FurryDangerzone < Gosu::Window
 
 	def initialize width=800, height=600, fullscreen=false
 		super
@@ -141,26 +183,6 @@ class FurryDangerzone < Gosu::Window
     end
   end
 
-  def make_danger
-    {
-      pos: Gosu::random(DANGER_OFFSET, self.height-DANGER_OFFSET*2),
-      dist: self.width+DANGER_OFFSET
-    }
-  end
-
-  def length_sq x, y
-    x*x + y*y
-  end
-
-  def distance_sq x1, y1, x2, y2
-    length_sq x1-x2, y1-y2
-  end
-
-
-  def squared x
-    x*x
-  end
-
 	def update
     new_time = Gosu::milliseconds
     @dt = (new_time - @last_time)/1000.0
@@ -173,7 +195,7 @@ class FurryDangerzone < Gosu::Window
 
       if (new_time - @last_danger)/1000.0 > @danger_period
         Gosu.random(1,3).to_int.times do
-          @dangers << make_danger
+          @dangers << Danger.new(self, @danger)
         end
         @last_danger = new_time
       end
@@ -182,8 +204,7 @@ class FurryDangerzone < Gosu::Window
         game_over
       else
         @dangers.each do |danger|
-          danger_sq = distance_sq(danger[:dist], danger[:pos], FURRY_OFFSET, @pos)
-          if danger_sq < squared(@furry.width)
+          if danger.distance_sq_to(FURRY_OFFSET, @pos) < squared(@furry.width)
             game_over
           end
         end
@@ -202,10 +223,10 @@ class FurryDangerzone < Gosu::Window
     end
 
     @dangers.each do |danger|
-      danger[:dist] -= @dt*@speed
+      danger.update @dt, @speed
     end
 
-    @dangers.delete_if { |danger| danger[:dist] < -DANGER_OFFSET }
+    @dangers.delete_if { |danger| danger.gone_off? }
 
     if @particles
       @particles.each do |particle|
@@ -237,14 +258,10 @@ class FurryDangerzone < Gosu::Window
       end
       @furry.draw FURRY_OFFSET-@furry.width/2, @pos-@furry.height/2, 0
       @face.draw FURRY_OFFSET-2, @pos-2+5*(@velocity/600), 0
-    end 
+    end
 
     @dangers.each do |danger|
-      (1..MOTION_BLUR).each do |i|
-        offset = i*MOTION_BLUR_OFFSET
-        @danger.draw danger[:dist]-@danger.width/2+offset, danger[:pos]-@danger.height/2, 0, 1, 1, @motion_colors[i]
-      end
-      @danger.draw danger[:dist]-@danger.width/2, danger[:pos]-@danger.height/2, 0
+      danger.draw @motion_colors
     end
 
     if @particles
