@@ -18,6 +18,13 @@ MOTION_DT = 0.01
 MOTION_ANGLE_FACTOR = 0.1
 GAME_OVER_DELAY = 0.3
 
+LEVEL_UP = 150
+LEVELS = [ [0.2,0.8],
+           [0.15,0.6],
+           [0.1,0.6],
+           [0.05,0.5],
+           [0,0.5] ]
+
 # helpers
 def length_sq x, y
   x*x + y*y
@@ -29,6 +36,14 @@ end
 
 def squared x
   x*x
+end
+
+def max x, y
+  x>y ? x : y
+end
+
+def min x, y
+  x>y ? y : x
 end
 
 class Score
@@ -294,9 +309,26 @@ class FurryDangerzone < Gosu::Window
       @pos += @velocity*@dt
 
       if (new_time - @last_danger)/1000.0 > @danger_period
-        Gosu.random(1,3).to_int.times do
+        r = Gosu.random(0,1)
+        
+        level = LEVELS[min(@score/LEVEL_UP, LEVELS.length-1)]
+
+        amount = level.length
+
+        level.each_index do |i|
+          # puts "#{r} < #{level[i]} ???"
+          if r < level[i]
+            amount = i
+            break
+          end
+        end
+
+        # puts amount
+
+        amount.times do
           @dangers.allocate self
         end
+
         @last_danger = new_time
       end
 
