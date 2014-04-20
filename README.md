@@ -6,9 +6,9 @@ Random Game made with Gosu. It is a bit like (I'm so sorry) Flappy Bird. I just 
 Screenshots!
 ------------
 
-![Screenshot of Title Screen](https://i.imgur.com/cnknOyb.png)
-![Screenshot of Game Play](https://i.imgur.com/sDltn05.png)
-![Screenshot of Game Over](https://i.imgur.com/S5qFrg8.png)
+![Screenshot of Title Screen](http://i.imgur.com/MXZoBaG.png)
+![Screenshot of Game Play](http://i.imgur.com/mWHdr57.png)
+![Screenshot of Game Over](http://i.imgur.com/voRnABH.png)
 
 Credits
 -------
