@@ -268,7 +268,8 @@ class FurryDangerzone < Gosu::Window
     vx = v*Math::cos(theta)
     vy = v*Math::sin(theta)
     {
-      x: x+vx*MOTION_DT*MOTION_BLUR, y: y+vy*MOTION_DT*MOTION_BLUR, vx: vx, vy: vy
+      x: x+vx*MOTION_DT*MOTION_BLUR, y: y+vy*MOTION_DT*MOTION_BLUR, vx: vx, vy: vy,
+      av: Gosu.random(45,180), a: Gosu.random(0,360)
     }
   end
 
@@ -278,7 +279,7 @@ class FurryDangerzone < Gosu::Window
     @game_over_time = 0
     @explode.play
     @particles ||= (0..NUM_PARTICLES).map do
-      make_particle FURRY_OFFSET, @pos, Gosu::random(0,1.5)*PARTICLE_V
+      make_particle FURRY_OFFSET, @pos, Gosu::random(0.01,1.5)*PARTICLE_V
     end
   end
 
@@ -336,6 +337,7 @@ class FurryDangerzone < Gosu::Window
       @particles.each do |particle|
         particle[:x] += particle[:vx]*@dt
         particle[:y] += particle[:vy]*@dt
+        particle[:a] += particle[:av]*@dt
       end
     end
 	end
@@ -377,11 +379,12 @@ class FurryDangerzone < Gosu::Window
         xoffset = i*MOTION_BLUR_OFFSET*0.4
         @particles.each do |particle|
           yoffset = i*particle[:vy]*MOTION_DT
-          @particle.draw particle[:x]-@particle.width-xoffset, particle[:y]-@particle.height-yoffset, 0, 1, 1, @motion_colors[i]
+          angle = particle[:a]-i*particle[:av]*MOTION_ANGLE_FACTOR
+          @particle.draw_rot particle[:x]-xoffset, particle[:y]-yoffset, 0, angle, 0.5, 0.5, 1, 1, @motion_colors[i]
         end
       end
       @particles.each do |particle|
-        @particle.draw particle[:x]-@particle.width, particle[:y]-@particle.height, 0
+        @particle.draw_rot particle[:x], particle[:y], 0, particle[:a]
       end
 
     end
