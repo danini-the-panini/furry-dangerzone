@@ -15,6 +15,7 @@ MOTION_BLUR_OFFSET = 5.0
 MOTION_BLUR_ALPHA = 64.0
 HISTORY_DISTANCE = 5
 MOTION_DT = 0.01
+MOTION_ANGLE_FACTOR = 0.1
 GAME_OVER_DELAY = 0.3
 
 # helpers
@@ -75,19 +76,23 @@ class Danger
   def reset window
     @pos = Gosu::random(DANGER_OFFSET, window.height-DANGER_OFFSET*2)
     @dist = window.width+DANGER_OFFSET
+    @av = Gosu::random(-180, -90)
+    @a = Gosu::random(0, 360)
     self
   end
 
   def update dt, speed
     @dist -= dt*speed
+    @a += dt*@av
   end
 
   def draw motion_colors
     (1..MOTION_BLUR).each do |i|
-      offset = i*MOTION_BLUR_OFFSET
-      @image.draw @dist-@image.width/2+offset, @pos-@image.height/2, 0, 1, 1, motion_colors[i]
+      offset = i*MOTION_BLUR_OFFSET*2
+      angle = @a-i*@av*MOTION_ANGLE_FACTOR
+      @image.draw_rot @dist-@image.width/2+offset, @pos-@image.height/2, 0, angle, 0.5, 0.5, 1, 1, motion_colors[i]
     end
-    @image.draw @dist-@image.width/2, @pos-@image.height/2, 0
+    @image.draw_rot @dist-@image.width/2, @pos-@image.height/2, 0, @a
   end
 
   def gone_off?
