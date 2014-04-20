@@ -99,8 +99,8 @@ class Danger
     @dist < -DANGER_OFFSET
   end
 
-  def distance_sq_to x, y
-    distance_sq(@dist, @pos, x, y)
+  def close_to? x, y, radius
+    distance_sq(@dist, @pos, x, y) < squared(radius+@image.width/2)
   end
 end
 
@@ -303,7 +303,7 @@ class FurryDangerzone < Gosu::Window
         game_over
       else
         @dangers.each do |danger|
-          if danger.distance_sq_to(FURRY_OFFSET, @pos) < squared(@furry.width)
+          if danger.close_to?(FURRY_OFFSET, @pos, @furry.width/2)
             game_over
           end
         end
