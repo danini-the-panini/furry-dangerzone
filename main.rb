@@ -90,9 +90,9 @@ class Danger
     (1..MOTION_BLUR).each do |i|
       offset = i*MOTION_BLUR_OFFSET*2
       angle = @a-i*@av*MOTION_ANGLE_FACTOR
-      @image.draw_rot @dist-@image.width/2+offset, @pos-@image.height/2, 0, angle, 0.5, 0.5, 1, 1, motion_colors[i]
+      @image.draw_rot @dist+offset, @pos, 0, angle, 0.5, 0.5, 1, 1, motion_colors[i]
     end
-    @image.draw_rot @dist-@image.width/2, @pos-@image.height/2, 0, @a
+    @image.draw_rot @dist, @pos, 0, @a
   end
 
   def gone_off?
