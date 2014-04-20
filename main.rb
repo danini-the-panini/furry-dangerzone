@@ -322,7 +322,7 @@ class FurryDangerzone < Gosu::Window
       end
     else
       @game_over_time += @dt unless @game_over_time > GAME_OVER_DELAY
-      if @game_over_time > GAME_OVER_DELAY && @score > @scores[-1][0] && !self.text_input
+      if @game_over_time > GAME_OVER_DELAY && (@scores.empty? || @score > @scores[-1][0]) && !self.text_input
         self.text_input = Gosu::TextInput.new
       end
     end
