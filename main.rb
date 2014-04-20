@@ -214,14 +214,18 @@ class FurryDangerzone < Gosu::Window
 		close if id == Gosu::KbEscape
     if @game_over
       unless @game_over_time < GAME_OVER_DELAY
-        if self.text_input && id == Gosu::KbReturn || id == Gosu::KbEnter
-          @scores << [@score.to_i, self.text_input.text]
-          @scores = @scores.sort{ |x,y| y <=> x }.slice(0...7)
-          update_score_strings
-          save_scores
-          self.text_input = nil
+        if self.text_input
+          if id == Gosu::KbReturn || id == Gosu::KbEnter
+            @scores << [@score.to_i, self.text_input.text]
+            @scores = @scores.sort{ |x,y| y <=> x }.slice(0...7)
+            update_score_strings
+            save_scores
+            self.text_input = nil
+            reset
+          end
+        else
+          reset
         end
-        reset
       end
     elsif @playing
       if Gosu::KbSpace
