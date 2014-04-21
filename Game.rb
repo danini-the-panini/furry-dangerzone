@@ -8,7 +8,7 @@ FURRY_OFFSET = 100.0
 DANGER_OFFSET = 50.0
 DANGER_PERIOD = 0.3
 SPEED = 500.0
-NUM_PARTICLES = 200
+NUM_PARTICLES = 100
 PARTICLE_V = 500.0
 SCORE_PER_SECOND = 10
 MOTION_BLUR = 10
@@ -292,9 +292,19 @@ class FurryDangerzone < Gosu::Window
     theta = Gosu.random(0,2*Math::PI)
     vx = v*Math::cos(theta)
     vy = v*Math::sin(theta)
+    size = MOTION_BLUR*MOTION_BLUR_OFFSET*2+@particle.width
+    angle = Gosu.random(0,360)
     {
       x: x+vx*MOTION_DT*MOTION_BLUR, y: y+vy*MOTION_DT*MOTION_BLUR, vx: vx, vy: vy,
-      av: Gosu.random(45,180), a: Gosu.random(0,360)
+      image: self.record(size.to_i,size.to_i) do
+        (1..MOTION_BLUR).each do |i|
+          xoffset = i*(vx*MOTION_DT+MOTION_BLUR_OFFSET)
+          yoffset = i*vy*MOTION_DT
+          @particle.draw_rot size/2-xoffset, size/2-yoffset, 0, angle, 0.5, 0.5, 1, 1, @motion_colors[i]
+        end
+        @particle.draw_rot size/2, size/2, 0, angle
+      end,
+      # a: angle
     }
   end
 
@@ -309,6 +319,7 @@ class FurryDangerzone < Gosu::Window
   end
 
 	def update
+    # self.caption = Gosu::fps.to_s
     new_time = Gosu::milliseconds
     @dt = (new_time - @last_time)/1000.0
     @last_time = new_time
@@ -379,7 +390,6 @@ class FurryDangerzone < Gosu::Window
       @particles.each do |particle|
         particle[:x] += particle[:vx]*@dt
         particle[:y] += particle[:vy]*@dt
-        particle[:a] += particle[:av]*@dt
       end
     end
 	end
@@ -417,16 +427,17 @@ class FurryDangerzone < Gosu::Window
     end
 
     if @particles
-      (1..MOTION_BLUR).each do |i|
-        xoffset = i*MOTION_BLUR_OFFSET*0.4
-        @particles.each do |particle|
-          yoffset = i*particle[:vy]*MOTION_DT
-          angle = particle[:a]-i*particle[:av]*MOTION_ANGLE_FACTOR
-          @particle.draw_rot particle[:x]-xoffset, particle[:y]-yoffset, 0, angle, 0.5, 0.5, 1, 1, @motion_colors[i]
-        end
-      end
+      
       @particles.each do |particle|
-        @particle.draw_rot particle[:x], particle[:y], 0, particle[:a]
+        image = particle[:image]
+        image.draw particle[:x]-image.width/2, particle[:y]-image.height/2, 0
+
+        # (1..MOTION_BLUR).each do |i|
+        #   xoffset = i*(particle[:vx]*MOTION_DT+MOTION_BLUR_OFFSET)
+        #   yoffset = i*particle[:vy]*MOTION_DT
+        #   @particle.draw_rot particle[:x]-xoffset, particle[:y]-yoffset, 0, particle[:a], 0.5, 0.5, 1, 1, @motion_colors[i]
+        # end
+        # @particle.draw_rot particle[:x], particle[:y], 0, particle[:a]
       end
 
     end
