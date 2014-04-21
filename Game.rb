@@ -1,4 +1,5 @@
 require 'gosu'
+require 'fileutils'
 
 # constants
 BOUNCE_AMOUNT = 500.0
@@ -24,6 +25,9 @@ LEVELS = [ [0.2,0.8],
            [0.1,0.6],
            [0.05,0.5],
            [0,0.5] ]
+
+DATA_DIR = File.expand_path('~/.jellymann/furry-dangerzone')
+SCORE_FILE = DATA_DIR+'/scores.dat'
 
 # helpers
 def length_sq x, y
@@ -208,8 +212,8 @@ class FurryDangerzone < Gosu::Window
 	end
 
   def load_scores
-    if File.exists?("scores.dat")
-      File.open("scores.dat") do |f|
+    if File.exists?(SCORE_FILE)
+      File.open(SCORE_FILE) do |f|
         @scores = Marshal::load(f.read)
       end
     else
@@ -218,7 +222,8 @@ class FurryDangerzone < Gosu::Window
   end
 
   def save_scores
-    File.open("scores.dat", File::CREAT|File::TRUNC|File::RDWR) do |f|
+    FileUtils.mkpath DATA_DIR
+    File.open(SCORE_FILE, File::CREAT|File::TRUNC|File::RDWR) do |f|
       f.write Marshal::dump(@scores)
     end
   end
