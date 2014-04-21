@@ -18,6 +18,7 @@ HISTORY_DISTANCE = 5
 MOTION_DT = 0.01
 MOTION_ANGLE_FACTOR = 0.1
 GAME_OVER_DELAY = 0.3
+MAX_SCORES = 7
 
 LEVEL_UP = 150
 LEVELS = [ [0.2,0.8],
@@ -235,6 +236,10 @@ class FurryDangerzone < Gosu::Window
     end
   end
 
+  def made_high_score?
+    (@scores.length<MAX_SCORES || @score > @scores[-1][0])
+  end
+
 	def button_down(id)
 		close if id == Gosu::KbEscape
     if @game_over
@@ -242,7 +247,7 @@ class FurryDangerzone < Gosu::Window
         if self.text_input
           if id == Gosu::KbReturn || id == Gosu::KbEnter
             @scores << [@score.to_i, self.text_input.text]
-            @scores = @scores.sort{ |x,y| y <=> x }.slice(0...7)
+            @scores = @scores.sort{ |x,y| y <=> x }.slice(0...MAX_SCORES)
             update_score_strings
             save_scores
             self.text_input = nil
@@ -359,7 +364,7 @@ class FurryDangerzone < Gosu::Window
       end
     else
       @game_over_time += @dt unless @game_over_time > GAME_OVER_DELAY
-      if @game_over_time > GAME_OVER_DELAY && (@scores.empty? || @score > @scores[-1][0]) && !self.text_input
+      if @game_over_time > GAME_OVER_DELAY && made_high_score? && !self.text_input
         self.text_input = Gosu::TextInput.new
       end
     end
