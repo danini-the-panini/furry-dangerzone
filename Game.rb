@@ -182,13 +182,15 @@ class FurryDangerzone < Gosu::Window
     @jaws2 = Gosu::Image.new self, "jaws2.png"
     @jaws3 = Gosu::Image.new self, "jaws3.png"
     @dangers = DangerPool.new self, 10
+    @sound_on = Gosu::Image.new self, "sound_on.png"
+    @sound_off = Gosu::Image.new self, "sound_off.png"
 
     @main_text = Gosu::Image.from_text self, "Furry Dangerzone", "./Rase-GPL-Bold.ttf", 64
     @main_outline = Gosu::Image.from_text self, "Furry Dangerzone", "./Rase-GPL-Outline.ttf", 64
     @subtitle_text = Gosu::Image.from_text self, "Press space to jump", "./8-BIT-WONDER.TTF", 30
     @game_over_text = Gosu::Image.from_text self, "game Over", "./Rase-GPL.ttf", 100
     @game_over_outline = Gosu::Image.from_text self, "game Over", "./Rase-GPL-Outline.ttf", 100
-    @credits = Gosu::Image.from_text self, "Music by bart from http://opengameart.org", Gosu::default_font_name, 30
+    @credits = Gosu::Image.from_text self, "Music by bart from http://opengameart.org (press M to mute)", Gosu::default_font_name, 30
     @score_text = Score.new self, "./8-BIT-WONDER.TTF", 30
     @prompt = Gosu::Image.from_text self, "You got a high score", "./8-BIT-WONDER.TTF", 30
     @prompt_not_good_enough = Gosu::Image.from_text self, "Press any key to continue", "./8-BIT-WONDER.TTF", 30
@@ -242,7 +244,9 @@ class FurryDangerzone < Gosu::Window
 
 	def button_down(id)
 		close if id == Gosu::KbEscape
-    if @game_over
+    if id == Gosu::KbM
+      @song.playing? ? @song.pause : @song.play
+    elsif @game_over
       unless @game_over_time < GAME_OVER_DELAY
         if self.text_input
           if id == Gosu::KbReturn || id == Gosu::KbEnter
@@ -456,6 +460,8 @@ class FurryDangerzone < Gosu::Window
         score.draw self.width-FURRY_OFFSET*1.5-score.width, 200+dy, 0, 1, 1, 0xFF000000
         dy += 50
       end
+
+      (@song.playing? ? @sound_on : @sound_off).draw(self.width-@sound_on.width, 0, 0)
     else
       @score_text.draw 20, 20, @score.to_i unless @game_over
     end
