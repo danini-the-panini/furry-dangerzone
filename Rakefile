@@ -6,7 +6,7 @@ require 'releasy'
 #<<<
 Releasy::Project.new do
   name "Furry Dangerzone"
-  version "1.0.0"
+  version "1.0.1"
   verbose # Can be removed if you don't want to see all build messages.
 
   executable "Game.rb"
