@@ -245,7 +245,7 @@ class FurryDangerzone < Gosu::Window
 	def button_down(id)
 		close if id == Gosu::KbEscape
     if id == Gosu::KbM
-      @song.playing? ? @song.pause : @song.play
+      @song.playing? ? @song.pause : @song.play(true)
     elsif @game_over
       unless @game_over_time < GAME_OVER_DELAY
         if self.text_input
@@ -391,9 +391,13 @@ class FurryDangerzone < Gosu::Window
     @dangers.delete_if { |danger| danger.gone_off? }
 
     if @particles
-      @particles.each do |particle|
+      @particles.delete_if do |particle|
         particle[:x] += particle[:vx]*@dt
         particle[:y] += particle[:vy]*@dt
+        particle[:x]+particle[:image].width/2 < 0 ||
+          particle[:x]-particle[:image].width/2 > self.width ||
+          particle[:y]+particle[:image].height/2 < 0 ||
+          particle[:y]-particle[:image].height/2 > self.height
       end
     end
 	end
@@ -461,7 +465,7 @@ class FurryDangerzone < Gosu::Window
         dy += 50
       end
 
-      (@song.playing? ? @sound_on : @sound_off).draw(self.width-@sound_on.width, 0, 0)
+      (@song.playing? ? @sound_on : @sound_off).draw(self.width-@sound_on.width-10, self.height-@sound_on.height-10, 0)
     else
       @score_text.draw 20, 20, @score.to_i unless @game_over
     end
